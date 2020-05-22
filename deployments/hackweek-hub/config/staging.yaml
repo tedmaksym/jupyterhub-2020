@@ -16,6 +16,27 @@ jupyterhub:
         default: true
         kubespawner_override:
           image: uwhackweeks/icesat2:master
+    initContainers:
+      - name: volume-mount-hack
+        image: busybox
+        command:
+          - "sh"
+          - "-c"
+          - >
+            id && chown 1000:1000 -R /srv/shared ;
+        securityContext:
+          runAsUser: 0
+        volumeMounts:
+          - name: jupyterhub-shared
+            mountPath: /srv/shared
+    storage:
+      extraVolumeMounts:
+        - name: jupyterhub-shared
+          mountPath: /srv/shared
+      extraVolumes:
+        - name: jupyterhub-shared
+          persistentVolumeClaim:
+            claimName: shared-nfs
   auth:
     github:
       callbackUrl: "http://staging.icesat-2.hackweek.io/hub/oauth_callback"
