@@ -11,7 +11,7 @@ jupyterhub:
       - display_name: "IceSat-2 Hackweek 2020 Image"
         default: true
         kubespawner_override:
-          image: uwhackweeks/icesat2:latest
+          image: uwhackweeks/icesat2:2020.06.03
     initContainers:
       - name: volume-mount-hack
         image: busybox
@@ -41,6 +41,15 @@ jupyterhub:
         - name: tutorial-data
           persistentVolumeClaim:
             claimName: icesat2-tutorial-data-claim
+    lifecycleHooks:
+      postStart:
+        exec:
+          command:
+            - "sh"
+            - "-c"
+            - >
+              test -L /home/jovyan/shared || ln -s /srv/shared /home/jovyan/shared ;
+              test -L /home/jovyan/tutorial-data || ln -s /srv/tutorial-data /home/jovyan/tutorial-data ;
   auth:
     github:
       callbackUrl: "http://icesat-2.hackweek.io/hub/oauth_callback"
